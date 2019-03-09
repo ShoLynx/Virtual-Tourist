@@ -9,6 +9,7 @@
 import UIKit
 import Foundation
 import MapKit
+import CoreData
 
 
 class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate {
@@ -16,7 +17,9 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
 //    PinchGesture method obtained from https://stackoverflow.com/questions/36978190/ios-swift-cannot-get-pinch-to-work
 //    HoldGesture method obtained from https://stackoverflow.com/questions/30858360/adding-a-pin-annotation-to-a-map-view-on-a-long-press-in-swift
     
-    var pins = [MKPointAnnotation]()
+    //var pins = [MKPointAnnotation]()
+    var mapPins: [Pin] = []
+    var dataController: DataController!
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var selectedAnnotation: MKPointAnnotation?
 
@@ -42,6 +45,14 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         pinchGesture.delegate = self
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(pinchAction(pinch:)))
         travelMap.addGestureRecognizer(pinchGesture)
+        
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "coordinateString", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            mapPins = result
+            travelMap.reloadInputViews()
+        }
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -104,10 +115,13 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {
         let touchPoint = gestureRecognizer.location(in: travelMap)
         let newCoordinates = travelMap.convert(touchPoint, toCoordinateFrom: travelMap)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = newCoordinates
-        travelMap.addAnnotation(annotation)
-        pins.append(annotation)
+        let annotation = Pin(context: dataController.viewContext)
+        annotation.latitude = newCoordinates.latitude
+        annotation.longitude = newCoordinates.longitude
+        annotation.coordinateString = "&lat=\(annotation.latitude)&lon=\(annotation.longitude)"
+        travelMap.addAnnotation(annotation as! MKAnnotation)
+        try? dataController.viewContext.save()
+        mapPins.append(annotation)
     }
     
     @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {
