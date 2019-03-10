@@ -157,12 +157,15 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         activityIndicator.startAnimating()
         self.selectedAnnotation = view.annotation as? MKPointAnnotation
+        let pin = Pin(context: dataController.viewContext)
         let pinned2D = selectedAnnotation!.coordinate
+        pin.latitude = pinned2D.latitude
+        pin.longitude = pinned2D.longitude
         selectedPinCoordinates = pinned2D
-        let latitude = pinned2D.latitude
-        let longitude = pinned2D.longitude
-        let coordinateString = "&lat=\(latitude)&lon=\(longitude)"
-        AppClient.getPhotoData(coordinates: coordinateString, completion: handlePhotoDataResponse(photos:error:))
+//        let latitude = pinned2D.latitude
+//        let longitude = pinned2D.longitude
+        pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
     }
 
 }
