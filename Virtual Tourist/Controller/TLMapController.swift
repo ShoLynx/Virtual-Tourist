@@ -32,6 +32,9 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        dataController = appDelegate.dataController
+        
         navigationItem.rightBarButtonItem = editButtonItem
         travelMap.delegate = self
         activityIndicator.stopAnimating()
@@ -115,13 +118,17 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {
         let touchPoint = gestureRecognizer.location(in: travelMap)
         let newCoordinates = travelMap.convert(touchPoint, toCoordinateFrom: travelMap)
-        let annotation = Pin(context: dataController.viewContext)
-        annotation.latitude = newCoordinates.latitude
-        annotation.longitude = newCoordinates.longitude
-        annotation.coordinateString = "&lat=\(annotation.latitude)&lon=\(annotation.longitude)"
-        travelMap.addAnnotation(annotation as! MKAnnotation)
+        let pinPoint = Pin(context: dataController.viewContext)
+        
+        pinPoint.latitude = newCoordinates.latitude
+        pinPoint.longitude = newCoordinates.longitude
+        pinPoint.coordinateString = "&lat=\(pinPoint.latitude)&lon=\(pinPoint.longitude)"
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = CLLocationCoordinate2D(latitude: pinPoint.latitude, longitude: pinPoint.longitude)
+        travelMap.addAnnotation(annotation)
         try? dataController.viewContext.save()
-        mapPins.append(annotation)
+        mapPins.append(pinPoint)
     }
     
     @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {
