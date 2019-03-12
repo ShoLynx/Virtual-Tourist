@@ -65,22 +65,11 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
-        if editing {
-            //enter mapView didSelect MKAnnotationView At with delete function
-            func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-                self.selectedAnnotation = view.annotation as? MKPointAnnotation
-                let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to delete this pin?", preferredStyle: .alert)
-                alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-                    //Enter cancel function here.
-                    alertVC.dismiss(animated: true, completion: nil)
-                }))
-                alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-                    //Enter delete functionality here
-                    mapView.removeAnnotation(self.selectedAnnotation!)
-                    //Need to remove from pins array
-                }))
-            }
-        }
+        // To be added:
+        // - Right Navigation Button becomes an Edit button
+        // - Left Navigation Button becomes 'Delete All' button
+        // - Tapping a pin in Edit mode produces Delete confirmation alert.  No dismisses the alert, Yes deletes the individual pin AND removes its info from the array (could probably add 'if editing' to mapView didSelectAt)
+        // - Tapping Delete all produces Delete All confirmation alert.  No dismisses the alert, Yes deletes all pins and empties the pin array
     }
 
     func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
@@ -101,8 +90,20 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         show(alertVC, sender: nil)
     }
     
+    func showDeleteAlert() {
+        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove this pin?", preferredStyle: .alert)
+        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
+            //Enter cancel function here.
+            alertVC.dismiss(animated: true, completion: nil)
+        }))
+        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
+            //Enter deleteAnnotation functionality here
+            //use pins.removeAll function
+        }))
+    }
+    
     func showDeleteAllAlert() {
-        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to clear the map of pins?", preferredStyle: .alert)
+        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove all of your pins?", preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
             //Enter cancel function here.
             alertVC.dismiss(animated: true, completion: nil)
@@ -135,6 +136,10 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         mapPins.append(pin)
     }
     
+    @objc func deleteAnnotation() {
+        //Enter deleteAnnotation function here
+    }
+    
     @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {
         var pinchScale = pinchGesture.scale
         pinchScale = round(pinchScale * 1000) / 1000.0
@@ -162,8 +167,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         pin.latitude = pinned2D.latitude
         pin.longitude = pinned2D.longitude
         selectedPinCoordinates = pinned2D
-//        let latitude = pinned2D.latitude
-//        let longitude = pinned2D.longitude
         pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
         AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
     }
