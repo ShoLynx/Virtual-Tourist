@@ -98,7 +98,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         }))
         alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
             //Enter deleteAnnotation functionality here
-            //use pins.removeAll function
         }))
     }
     
@@ -110,7 +109,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         }))
         alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
             //Enter deleteAll functionality here
-            //use pins.removeAll function
         }))
     }
     
@@ -118,6 +116,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         let newPinned2D = selectedPinCoordinates
         let destinationVC = segue.destination as! PhotoAlbumController
         destinationVC.selectedPinCoordinates = newPinned2D
+        destinationVC.dataController = dataController
     }
     
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {

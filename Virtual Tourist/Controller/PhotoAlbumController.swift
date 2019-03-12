@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MapKit
+import CoreData
 
 class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     
@@ -20,8 +21,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var backButton: UIBarButtonItem!
     
-    
+    var pin: Pin!
     var selectedPinCoordinates: CLLocationCoordinate2D?
+    var dataController: DataController!
+    var flickrURLs: [FlickrPhoto] = []
     var imageData = PhotoPool.photo
     var images = [UIImage]()
     
@@ -31,6 +34,16 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         
         noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
+        getImageURL()
+        
+        let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "Pin == %@", pin)
+        let sortDescriptor = NSSortDescriptor(key: "imageURL", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        if let result = try? dataController.viewContext.fetch(fetchRequest) {
+            flickrURLs = result
+        }
+        
         getImageFromURL()
         
     }
@@ -54,9 +67,17 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         flowLayout.itemSize = CGSize(width: dWidth, height: dHeight)
     }
     
-    fileprivate func getImageFromURL() {
+    func getImageURL () {
         for photo in imageData {
-            AppClient.downloadPhoto(url: URL(string: photo.url_n!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
+            let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
+            flickrPhoto.imageURL = photo.url_n
+            flickrURLs.append(flickrPhoto)
+        }
+    }
+    
+    fileprivate func getImageFromURL() {
+        for flickrPhoto in flickrURLs {
+            AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
         }
     }
     
@@ -107,7 +128,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
 extension PhotoAlbumController {
     //   Need function for counting the number of available images in a download
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageData.count
+        return flickrURLs.count
     }
     //    Need function that will fill the collection view with images
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
