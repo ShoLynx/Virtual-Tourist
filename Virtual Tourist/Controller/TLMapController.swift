@@ -12,14 +12,14 @@ import MapKit
 import CoreData
 
 
-class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate {
+class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerDelegate, NSFetchedResultsControllerDelegate {
     
 //    PinchGesture method obtained from https://stackoverflow.com/questions/36978190/ios-swift-cannot-get-pinch-to-work
 //    HoldGesture method obtained from https://stackoverflow.com/questions/30858360/adding-a-pin-annotation-to-a-map-view-on-a-long-press-in-swift
     
     //var pins = [MKPointAnnotation]()
-    var mapPins: [Pin] = []
     var dataController: DataController!
+    var fetchedResultsController: NSFetchedResultsController<Pin>!
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var selectedAnnotation: MKPointAnnotation?
 
@@ -28,6 +28,20 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     
     @IBOutlet weak var travelMap: MKMapView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
+    func setupFetchedResultsController() {
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "coordinateString", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,17 +63,19 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(pinchAction(pinch:)))
         travelMap.addGestureRecognizer(pinchGesture)
         
-        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "coordinateString", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            mapPins = result
-            for pin in mapPins {
-                let annotation = MKPointAnnotation()
-                annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
-                travelMap.addAnnotation(annotation)
-            }
+        setupFetchedResultsController()
+        
+        for pin in fetchedResultsController.fetchedObjects ?? [] {
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+            travelMap.addAnnotation(annotation)
         }
+        
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        fetchedResultsController = nil
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -132,7 +148,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         travelMap.addAnnotation(annotation)
         try? dataController.viewContext.save()
-        mapPins.append(pin)
     }
     
     @objc func deleteAnnotation() {
