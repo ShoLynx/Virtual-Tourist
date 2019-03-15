@@ -11,7 +11,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
+class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
@@ -26,7 +26,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
     var imagePool = PhotoPool.photo
-//    var images = [UIImage]()
     
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
@@ -47,7 +46,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         newCollectionButton.isEnabled = false
 
         setupFetchedResultsController()
-        getImageURL()
+        getImageURL(completion: handleURLResponse(flickrPhoto:error:))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,19 +73,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         flowLayout.itemSize = CGSize(width: dWidth, height: dHeight)
     }
     
-    func getImageURL () {
-        for photo in imagePool {
-            let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
-            flickrPhoto.imageURL = photo.url_n
-        }
-    }
-    
-//    fileprivate func getImageFromURL() {
-//        for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
-//            AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
-//        }
-//    }
-    
     func setPin(coordinates: CLLocationCoordinate2D) {
         let annotation = MKPointAnnotation()
         let latitudeMeters: CLLocationDistance = 100000
@@ -97,11 +83,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         zoomedMap.setRegion(region, animated: true)
     }
     
-    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
-        if photos != nil {
-            getImageURL()
-        } else {
-            print(error!)
+    func getImageURL (completion: @escaping([String]?, Error?) -> Void) {
+        for photo in imagePool {
+            let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
+            flickrPhoto.imageURL = photo.url_n
         }
     }
     
@@ -125,7 +110,15 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         }
     }
     
-    @IBAction func newCollectionTapped(sender: UIButton) {
+    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
+        if photos != nil {
+            getImageURL(completion: handleURLResponse(flickrPhoto:error:))
+        } else {
+            print(error!)
+        }
+    }
+    
+    @IBAction func newCollectionTapped(_ sender: Any) {
         let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
         //empty PhotoPool.photo
         PhotoPool.photo = []
@@ -157,10 +150,11 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     @IBAction func backToMap(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
-
+    
 }
 
-extension PhotoAlbumController: NSFetchedResultsControllerDelegate {
+extension PhotoAlbumController: UICollectionViewDelegate {
+
     //   Need function for counting the number of available images in a download
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return fetchedResultsController.sections?.count ?? 0
@@ -176,6 +170,7 @@ extension PhotoAlbumController: NSFetchedResultsControllerDelegate {
     
 //  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //Add code to remove related flickrPhoto from fetchedResultsController
         collectionView.deleteItems(at: [indexPath])
     }
 

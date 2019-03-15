@@ -119,7 +119,11 @@
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XQF-8v-9LN">
                                 <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                                 <items>
-                                    <barButtonItem title="New Collection" width="481.5" id="Q5u-eD-L3M"/>
+                                    <barButtonItem title="New Collection" width="481.5" id="Q5u-eD-L3M">
+                                        <connections>
+                                            <action selector="newCollectionTapped:" destination="4nl-73-2V7" id="9V5-We-T9d"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s1f-M2-ry7">
@@ -160,7 +164,7 @@
                     <connections>
                         <outlet property="backButton" destination="Hq6-Bt-T7W" id="yGe-3L-D6R"/>
                         <outlet property="flowLayout" destination="cc0-Un-VCW" id="cfY-Qh-9iK"/>
-                        <outlet property="newCollectionButton" destination="Q5u-eD-L3M" id="8lP-dv-eBx"/>
+                        <outlet property="newCollectionButton" destination="Q5u-eD-L3M" id="Ng3-Gs-FGJ"/>
                         <outlet property="noImagesLabel" destination="7Np-h1-0L5" id="Z8f-sn-2Xm"/>
                         <outlet property="photoCollection" destination="5CB-5m-GVv" id="xpB-WK-uAn"/>
                         <outlet property="zoomedMap" destination="ujZ-hP-MAD" id="HIs-9G-DxW"/>
