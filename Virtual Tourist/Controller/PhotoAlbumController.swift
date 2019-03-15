@@ -24,36 +24,43 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     var pin: Pin!
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var dataController: DataController!
-    var flickrURLs: [FlickrPhoto] = []
-    var imageData = PhotoPool.photo
-    var images = [UIImage]()
+    var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
+    var imagePool = PhotoPool.photo
+//    var images = [UIImage]()
     
+    func setupFetchedResultsController() {
+        let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "imageURL", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
+
+        setupFetchedResultsController()
         getImageURL()
-        
-        let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "Pin == %@", pin)
-        let sortDescriptor = NSSortDescriptor(key: "imageURL", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        if let result = try? dataController.viewContext.fetch(fetchRequest) {
-            flickrURLs = result
-        }
-        
-        getImageFromURL()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         setCollectionFormat()
         photoCollection!.reloadData()
+        
         setPin(coordinates: selectedPinCoordinates!)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        fetchedResultsController = nil
     }
     
     fileprivate func setCollectionFormat() {
@@ -68,18 +75,17 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
     }
     
     func getImageURL () {
-        for photo in imageData {
+        for photo in imagePool {
             let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
             flickrPhoto.imageURL = photo.url_n
-            flickrURLs.append(flickrPhoto)
         }
     }
     
-    fileprivate func getImageFromURL() {
-        for flickrPhoto in flickrURLs {
-            AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
-        }
-    }
+//    fileprivate func getImageFromURL() {
+//        for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
+//            AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
+//        }
+//    }
     
     func setPin(coordinates: CLLocationCoordinate2D) {
         let annotation = MKPointAnnotation()
@@ -91,28 +97,57 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
         zoomedMap.setRegion(region, animated: true)
     }
     
+    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
+        if photos != nil {
+            getImageURL()
+        } else {
+            print(error!)
+        }
+    }
+    
+    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
+        if flickrPhoto != nil {
+            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
+                AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
+            }
+        } else {
+            print(error!)
+        }
+    }
+    
     func handlePhotoDownloadResponse(image: UIImage?, error: Error?) {
         if image != nil {
-            images.append(image!)
+            let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
+            flickrPhoto.imageData = image!.pngData()! as Data
             newCollectionButton.isEnabled = true
         } else {
             print(error!)
         }
     }
     
-    func showErrorAlert(message: String) {
-        let alertVC = UIAlertController(title: "Problem Getting Data", message: message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        show(alertVC, sender: nil)
+    @IBAction func newCollectionTapped(sender: UIButton) {
+        let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
+        //empty PhotoPool.photo
+        PhotoPool.photo = []
+        //empty fetchedResultsController and clear the photoCollection
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FlickrPhoto")
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            try dataController.viewContext.execute(batchDeleteRequest)
+            dataController.viewContext.reset()
+            photoCollection.reloadData()
+        } catch {
+            fatalError("The delete process could not be completed. \(error.localizedDescription)")
+        }
+        //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
+        AppClient.getPhotoData(coordinates: coordinateString, completion: handlePhotoDataResponse)
     }
     
-    //This button resets the collection view to zero and gets more images
-    @IBAction func newCollectionTapped(sender: UIButton) {
-        images = []
-        newCollectionButton.isEnabled = false
-        photoCollection.reloadData()
-        getImageFromURL()
-    }
+//    func showErrorAlert(message: String) {
+//        let alertVC = UIAlertController(title: "Problem Getting Data", message: message, preferredStyle: .alert)
+//        alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+//        show(alertVC, sender: nil)
+//    }
     
     //This provides an alert for users to confirm deleting a photo from the collection.  Add to didSelectItem at
     func deleteAlert() {
@@ -125,30 +160,23 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate {
 
 }
 
-extension PhotoAlbumController {
+extension PhotoAlbumController: NSFetchedResultsControllerDelegate {
     //   Need function for counting the number of available images in a download
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return flickrURLs.count
+        return fetchedResultsController.sections?.count ?? 0
     }
     //    Need function that will fill the collection view with images
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCollectionCell", for: indexPath) as! PhotoAlbumCollectionCell
-        cell.activityIndicator.startAnimating()
-        if images != [] {
-            let image = images[(indexPath as NSIndexPath).row]
-            cell.pinImage.image = image
-            cell.activityIndicator.stopAnimating()
-        } else {
-            noImagesLabel.isHidden = false
-            cell.activityIndicator.stopAnimating()
-        }
+        let cellImage = fetchedResultsController.object(at: indexPath)
+        cell.pinImage.image = UIImage(data: cellImage.imageData!)
         
         return cell
     }
     
 //  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        images.remove(at: indexPath.item)
         collectionView.deleteItems(at: [indexPath])
     }
+
 }

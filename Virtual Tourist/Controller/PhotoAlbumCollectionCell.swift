@@ -15,8 +15,8 @@ class PhotoAlbumCollectionCell: UICollectionViewCell {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     
-    func configure(with model: Photo) {
-        pinImage.image = UIImage(named: "imagePlaceholder")
+    func configure(with model: FlickrPhoto) {
+        pinImage.image = UIImage(data: model.imageData!)
     }
     
     
