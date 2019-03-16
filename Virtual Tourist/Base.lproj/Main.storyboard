@@ -84,13 +84,6 @@
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
-                                <label key="backgroundView" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No images found" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7Np-h1-0L5">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="358"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                    <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoAlbumCollectionCell" id="yTS-ox-Gec" customClass="PhotoAlbumCollectionCell" customModule="Virtual_Tourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="117" height="119"/>
@@ -157,6 +150,7 @@
                             <constraint firstItem="XQF-8v-9LN" firstAttribute="leading" secondItem="7bQ-q9-4OS" secondAttribute="leading" id="d8k-Gl-H4w"/>
                             <constraint firstItem="ujZ-hP-MAD" firstAttribute="top" secondItem="s1f-M2-ry7" secondAttribute="bottom" id="ecg-2K-gam"/>
                             <constraint firstItem="XQF-8v-9LN" firstAttribute="top" secondItem="5CB-5m-GVv" secondAttribute="bottom" id="hat-Vd-GPj"/>
+                            <constraint firstItem="5CB-5m-GVv" firstAttribute="centerX" secondItem="zMh-VK-xNa" secondAttribute="centerX" id="qOH-Xu-5rc"/>
                             <constraint firstItem="XQF-8v-9LN" firstAttribute="leading" secondItem="7bQ-q9-4OS" secondAttribute="leading" id="vyQ-ko-kSV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="7bQ-q9-4OS"/>
@@ -165,7 +159,6 @@
                         <outlet property="backButton" destination="Hq6-Bt-T7W" id="yGe-3L-D6R"/>
                         <outlet property="flowLayout" destination="cc0-Un-VCW" id="cfY-Qh-9iK"/>
                         <outlet property="newCollectionButton" destination="Q5u-eD-L3M" id="Ng3-Gs-FGJ"/>
-                        <outlet property="noImagesLabel" destination="7Np-h1-0L5" id="Z8f-sn-2Xm"/>
                         <outlet property="photoCollection" destination="5CB-5m-GVv" id="xpB-WK-uAn"/>
                         <outlet property="zoomedMap" destination="ujZ-hP-MAD" id="HIs-9G-DxW"/>
                     </connections>

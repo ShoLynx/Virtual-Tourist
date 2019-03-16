@@ -138,6 +138,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         let destinationVC = segue.destination as! PhotoAlbumController
         destinationVC.selectedPinCoordinates = newPinned2D
         destinationVC.dataController = dataController
+        destinationVC.imagePool = PhotoPool.photo
     }
     
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {

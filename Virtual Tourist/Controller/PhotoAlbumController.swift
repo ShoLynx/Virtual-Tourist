@@ -11,13 +11,13 @@ import UIKit
 import MapKit
 import CoreData
 
-class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate {
+class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
     @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     @IBOutlet weak var zoomedMap: MKMapView!
     @IBOutlet weak var photoCollection: UICollectionView!
-    @IBOutlet weak var noImagesLabel: UILabel!
+//    @IBOutlet weak var noImagesLabel: UILabel!
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var backButton: UIBarButtonItem!
     
@@ -25,7 +25,8 @@ class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
-    var imagePool = PhotoPool.photo
+    var imagePool: [Photo] = []
+    var photoArray: [FlickrPhoto] = []
     
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
@@ -42,19 +43,24 @@ class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        noImagesLabel.isHidden = true
+//        noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
+        photoCollection.delegate = self
+        setCollectionFormat()
+        photoCollection!.reloadData()
 
         setupFetchedResultsController()
-        getImageURL(completion: handleURLResponse(flickrPhoto:error:))
+        getImageURL()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setCollectionFormat()
-        photoCollection!.reloadData()
+        
         
         setPin(coordinates: selectedPinCoordinates!)
+//        if photoArray.count == 0 {
+//            noImagesLabel.isHidden = false
+//        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -83,36 +89,32 @@ class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate
         zoomedMap.setRegion(region, animated: true)
     }
     
-    func getImageURL (completion: @escaping([String]?, Error?) -> Void) {
+    func getImageURL () {
         for photo in imagePool {
             let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
             flickrPhoto.imageURL = photo.url_n
+            photoArray.append(flickrPhoto)
+        }
+        
+        DispatchQueue.main.async {
+            try? self.dataController.viewContext.save()
+            self.photoCollection.reloadData()
         }
     }
     
-    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
-        if flickrPhoto != nil {
-            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
-                AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
-            }
-        } else {
-            print(error!)
-        }
-    }
-    
-    func handlePhotoDownloadResponse(image: UIImage?, error: Error?) {
-        if image != nil {
-            let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
-            flickrPhoto.imageData = image!.pngData()! as Data
-            newCollectionButton.isEnabled = true
-        } else {
-            print(error!)
-        }
-    }
+//    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
+//        if flickrPhoto != nil {
+//            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
+//                AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
+//            }
+//        } else {
+//            print(error!)
+//        }
+//    }
     
     func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
         if photos != nil {
-            getImageURL(completion: handleURLResponse(flickrPhoto:error:))
+            getImageURL()
         } else {
             print(error!)
         }
@@ -122,6 +124,7 @@ class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate
         let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
         //empty PhotoPool.photo
         PhotoPool.photo = []
+        photoArray = []
         //empty fetchedResultsController and clear the photoCollection
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FlickrPhoto")
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
@@ -151,19 +154,36 @@ class PhotoAlbumController: UIViewController, NSFetchedResultsControllerDelegate
         self.dismiss(animated: true, completion: nil)
     }
     
-}
-
-extension PhotoAlbumController: UICollectionViewDelegate {
-
     //   Need function for counting the number of available images in a download
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController.sections?.count ?? 0
+        return photoArray.count
     }
     //    Need function that will fill the collection view with images
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCollectionCell", for: indexPath) as! PhotoAlbumCollectionCell
-        let cellImage = fetchedResultsController.object(at: indexPath)
-        cell.pinImage.image = UIImage(data: cellImage.imageData!)
+        let cellImage = photoArray[indexPath.row]
+        let url = URL(string: cellImage.imageURL!)!
+        DispatchQueue.main.async {
+            cell.activityIndicator.startAnimating()
+            cell.activityIndicator.hidesWhenStopped = true
+        }
+        
+        func handlePhotoDownloadResponse(data: Data?, error: Error?) {
+            if data != nil {
+                DispatchQueue.main.async {
+                    let flickrPhoto = FlickrPhoto(context: self.dataController.viewContext)
+                    flickrPhoto.imageData = data
+                    cell.pinImage.image = UIImage(data: data!)
+                    cell.setNeedsLayout()
+                    cell.activityIndicator.stopAnimating()
+                    self.newCollectionButton.isEnabled = true
+                }
+            } else {
+                print(error!)
+            }
+        }
+        
+        AppClient.downloadPhoto(url: url, completion: handlePhotoDownloadResponse(data:error:))
         
         return cell
     }

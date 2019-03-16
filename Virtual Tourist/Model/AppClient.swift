@@ -75,15 +75,16 @@ class AppClient {
         task.resume()
     }
     
-    class func downloadPhoto(url: URL, completionHandler: @escaping (UIImage?, Error?) -> Void) {
-        let task = URLSession.shared.dataTask(with: url, completionHandler: { data, response, error in
-            guard let data = data else {
-                completionHandler(nil, error)
-                return
+    class func downloadPhoto(url: URL, completion: @escaping (Data?, Error?) -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if error == nil {
+                if let data = data {
+                    completion(data, nil)
+                }
+            } else {
+                completion(nil, error)
             }
-            let downloadedImage = UIImage(data: data)
-            completionHandler(downloadedImage, nil)
-        })
+        }
         task.resume()
     }
     
