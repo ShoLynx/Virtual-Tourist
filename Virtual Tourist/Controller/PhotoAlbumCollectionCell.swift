@@ -16,7 +16,11 @@ class PhotoAlbumCollectionCell: UICollectionViewCell {
     
     
     func configure(with model: FlickrPhoto) {
-        pinImage.image = UIImage(named: "PlaceholderImage")
+        if model.imageData != nil {
+            pinImage.image = UIImage(data: model.imageData!)
+        } else {
+            pinImage.image = UIImage(named: "imagePlaceholder")
+        }
     }
     
     

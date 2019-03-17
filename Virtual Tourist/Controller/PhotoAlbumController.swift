@@ -46,6 +46,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
 //        noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
         photoCollection.delegate = self
+        photoCollection.dataSource = self
         setCollectionFormat()
         photoCollection!.reloadData()
 
@@ -102,6 +103,16 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
+    func handlePhotoDownloadResponse(data: Data?, error: Error?) {
+        if data != nil {
+            let flickrPhoto = FlickrPhoto(context: self.dataController.viewContext)
+            flickrPhoto.imageData = data
+            newCollectionButton.isEnabled = true
+        } else {
+            print(error!)
+        }
+    }
+    
 //    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
 //        if flickrPhoto != nil {
 //            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
@@ -122,6 +133,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     @IBAction func newCollectionTapped(_ sender: Any) {
         let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
+        //disable NewCollectionButton
+        self.newCollectionButton.isEnabled = false
         //empty PhotoPool.photo
         PhotoPool.photo = []
         photoArray = []
@@ -168,30 +181,22 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             cell.activityIndicator.hidesWhenStopped = true
         }
         
-        func handlePhotoDownloadResponse(data: Data?, error: Error?) {
-            if data != nil {
-                DispatchQueue.main.async {
-                    let flickrPhoto = FlickrPhoto(context: self.dataController.viewContext)
-                    flickrPhoto.imageData = data
-                    cell.pinImage.image = UIImage(data: data!)
-                    cell.setNeedsLayout()
-                    cell.activityIndicator.stopAnimating()
-                    self.newCollectionButton.isEnabled = true
-                }
-            } else {
-                print(error!)
+        AppClient.downloadPhoto(url: url, completion: handlePhotoDownloadResponse(data:error:))
+
+        if cellImage.imageData != nil {
+            DispatchQueue.main.async {
+                cell.pinImage.image = UIImage(data: cellImage.imageData!)
+                cell.setNeedsLayout()
+                cell.activityIndicator.stopAnimating()
             }
         }
-        
-        AppClient.downloadPhoto(url: url, completion: handlePhotoDownloadResponse(data:error:))
-        
         return cell
     }
     
 //  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //Add code to remove related flickrPhoto from fetchedResultsController
-        collectionView.deleteItems(at: [indexPath])
+//        collectionView.deleteItems(at: [indexPath])
     }
 
 }
