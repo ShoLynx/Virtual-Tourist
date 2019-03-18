@@ -184,6 +184,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             if error == nil {
                 if let data = data {
                     DispatchQueue.main.async {
+                        cellImage.imageData = data
+                        try? self.dataController.viewContext.save()
                         cell.pinImage.image = UIImage(data: data)
                         cell.setNeedsLayout()
                         cell.activityIndicator.stopAnimating()
@@ -202,7 +204,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
 //  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //Add code to remove related flickrPhoto from fetchedResultsController
-//        collectionView.deleteItems(at: [indexPath])
+        collectionView.deleteItems(at: [indexPath])
+        photoArray.remove(at: indexPath.row)
     }
 
 }
