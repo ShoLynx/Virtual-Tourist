@@ -68,6 +68,7 @@ class AppClient {
                 } catch {
                     DispatchQueue.main.async {
                         completion(nil, error)
+                        print(error)
                     }
                 }
             }
@@ -83,6 +84,7 @@ class AppClient {
                 }
             } else {
                 completion(nil, error)
+                print(error!)
             }
         }
         task.resume()

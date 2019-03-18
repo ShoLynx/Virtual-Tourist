@@ -67,13 +67,18 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         fetchedResultsController = nil
+        
+        //Empty the arrays
+        PhotoPool.photo = []
+        photoArray = []
+        batchDeleteRequest()
     }
     
     fileprivate func setCollectionFormat() {
-        let space: CGFloat = 3.0
+        let space: CGFloat = 2.0
         let size = self.view.frame.size
-        let dWidth = (size.width - (3 * space)) / 3.0
-        let dHeight = (size.height - (3 * space)) / 4.0
+        let dWidth = (size.width - (2 * space)) / 4.0
+        let dHeight = (size.height - (2 * space)) / 4.0
         
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
@@ -103,16 +108,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
-    func handlePhotoDownloadResponse(data: Data?, error: Error?) {
-        if data != nil {
-            let flickrPhoto = FlickrPhoto(context: self.dataController.viewContext)
-            flickrPhoto.imageData = data
-            newCollectionButton.isEnabled = true
-        } else {
-            print(error!)
-        }
-    }
-    
 //    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
 //        if flickrPhoto != nil {
 //            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
@@ -131,13 +126,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
-    @IBAction func newCollectionTapped(_ sender: Any) {
-        let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
-        //disable NewCollectionButton
-        self.newCollectionButton.isEnabled = false
-        //empty PhotoPool.photo
-        PhotoPool.photo = []
-        photoArray = []
+    fileprivate func batchDeleteRequest() {
         //empty fetchedResultsController and clear the photoCollection
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FlickrPhoto")
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
@@ -148,6 +137,16 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         } catch {
             fatalError("The delete process could not be completed. \(error.localizedDescription)")
         }
+    }
+    
+    @IBAction func newCollectionTapped(_ sender: Any) {
+        let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
+        //disable NewCollectionButton
+        self.newCollectionButton.isEnabled = false
+        //empty PhotoPool.photo
+        PhotoPool.photo = []
+        photoArray = []
+        batchDeleteRequest()
         //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
         AppClient.getPhotoData(coordinates: coordinateString, completion: handlePhotoDataResponse)
     }
@@ -181,15 +180,22 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             cell.activityIndicator.hidesWhenStopped = true
         }
         
-        AppClient.downloadPhoto(url: url, completion: handlePhotoDownloadResponse(data:error:))
-
-        if cellImage.imageData != nil {
-            DispatchQueue.main.async {
-                cell.pinImage.image = UIImage(data: cellImage.imageData!)
-                cell.setNeedsLayout()
-                cell.activityIndicator.stopAnimating()
+        AppClient.downloadPhoto(url: url) { (data, error) in
+            if error == nil {
+                if let data = data {
+                    DispatchQueue.main.async {
+                        cell.pinImage.image = UIImage(data: data)
+                        cell.setNeedsLayout()
+                        cell.activityIndicator.stopAnimating()
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    print(error!)
+                }
             }
         }
+
         return cell
     }
     
