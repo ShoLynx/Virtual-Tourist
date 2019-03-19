@@ -22,6 +22,10 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     var fetchedResultsController: NSFetchedResultsController<Pin>!
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var selectedAnnotation: MKPointAnnotation?
+    var pins: [Pin] = []
+    var selectedPin: Pin!
+    var imagePool: [Photo] = []
+    var photoArray: [FlickrPhoto] = []
 
     var holdGesture = UILongPressGestureRecognizer()
     var pinchGesture = UIPinchGestureRecognizer()
@@ -69,6 +73,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
             travelMap.addAnnotation(annotation)
+            pins.append(pin)
         }
         
     }
@@ -93,17 +98,17 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         // - Tapping Delete all produces Delete All confirmation alert.  No dismisses the alert, Yes deletes all pins and empties the pin array
     }
 
-    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
-        if photos != nil {
-            travelMap.isUserInteractionEnabled = true
-            activityIndicator.stopAnimating()
-            performSegue(withIdentifier: "goToPinPhotos", sender: self)
-        } else {
-            travelMap.isUserInteractionEnabled = true
-            activityIndicator.stopAnimating()
-            showErrorAlert(message: error?.localizedDescription ?? "")
-        }
-    }
+//    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
+//        if photos != nil {
+//            travelMap.isUserInteractionEnabled = true
+//            activityIndicator.stopAnimating()
+//            performSegue(withIdentifier: "goToPinPhotos", sender: self)
+//        } else {
+//            travelMap.isUserInteractionEnabled = true
+//            activityIndicator.stopAnimating()
+//            showErrorAlert(message: error?.localizedDescription ?? "")
+//        }
+//    }
     
     func showErrorAlert(message: String) {
         let alertVC = UIAlertController(title: "Problem Getting Data", message: message, preferredStyle: .alert)
@@ -139,6 +144,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         destinationVC.selectedPinCoordinates = newPinned2D
         destinationVC.dataController = dataController
         destinationVC.imagePool = PhotoPool.photo
+        destinationVC.pin = selectedPin
     }
     
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {
@@ -154,6 +160,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         travelMap.addAnnotation(annotation)
         try? dataController.viewContext.save()
+        pins.append(pin)
     }
     
     @objc func deleteAnnotation() {
@@ -180,15 +187,23 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        activityIndicator.startAnimating()
+//        activityIndicator.startAnimating()
         self.selectedAnnotation = view.annotation as? MKPointAnnotation
-        let pin = Pin(context: dataController.viewContext)
+//        let pin = Pin(context: dataController.viewContext)
         let pinned2D = selectedAnnotation!.coordinate
-        pin.latitude = pinned2D.latitude
-        pin.longitude = pinned2D.longitude
+//        pin.latitude = pinned2D.latitude
+//        pin.longitude = pinned2D.longitude
         selectedPinCoordinates = pinned2D
-        pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
+//        pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
+        for pin in pins {
+            if pin.latitude == pinned2D.latitude && pin.longitude == pinned2D.longitude {
+                selectedPin = pin
+                performSegue(withIdentifier: "goToPinPhotos", sender: self)
+                mapView.deselectAnnotation(view.annotation, animated: true)
+                break
+            }
+        }
+//        AppClient.getPhotoData(coordinates: selectedPin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
     }
 
 }

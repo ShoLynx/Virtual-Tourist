@@ -20,6 +20,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
 //    @IBOutlet weak var noImagesLabel: UILabel!
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var backButton: UIBarButtonItem!
+    @IBOutlet weak var refreshButton: UIBarButtonItem!
     
     var pin: Pin!
     var selectedPinCoordinates: CLLocationCoordinate2D?
@@ -48,10 +49,9 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         photoCollection.delegate = self
         photoCollection.dataSource = self
         setCollectionFormat()
-        photoCollection!.reloadData()
 
         setupFetchedResultsController()
-        getImageURL()
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -62,6 +62,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
 //        if photoArray.count == 0 {
 //            noImagesLabel.isHidden = false
 //        }
+        photoCollection.reloadData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -93,6 +94,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         annotation.coordinate = coordinates
         zoomedMap.addAnnotation(annotation)
         zoomedMap.setRegion(region, animated: true)
+    }
+    
+    @IBAction func reloadCollectionView(_ sender: Any) {
+        photoCollection.reloadData()
     }
     
     func getImageURL () {
@@ -140,7 +145,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     @IBAction func newCollectionTapped(_ sender: Any) {
-        let coordinateString = "&lat=\(selectedPinCoordinates!.latitude)&lon=\(selectedPinCoordinates!.longitude)"
         //disable NewCollectionButton
         self.newCollectionButton.isEnabled = false
         //empty PhotoPool.photo
@@ -148,7 +152,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         photoArray = []
         batchDeleteRequest()
         //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
-        AppClient.getPhotoData(coordinates: coordinateString, completion: handlePhotoDataResponse)
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse)
     }
     
 //    func showErrorAlert(message: String) {
@@ -173,6 +177,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     //    Need function that will fill the collection view with images
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCollectionCell", for: indexPath) as! PhotoAlbumCollectionCell
+        cell.pinImage.image = UIImage(named: "imagePlaceholder")
         let cellImage = photoArray[indexPath.row]
         let url = URL(string: cellImage.imageURL!)!
         DispatchQueue.main.async {
