@@ -139,14 +139,18 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let newPinned2D = selectedPinCoordinates
+//        let newPinned2D = selectedPinCoordinates
         let destinationVC = segue.destination as! PhotoAlbumController
-        destinationVC.selectedPinCoordinates = newPinned2D
+        destinationVC.selectedPinCoordinates = selectedPinCoordinates
         destinationVC.dataController = dataController
         destinationVC.pin = selectedPin
     }
     
     @objc func addAnnotation(gestureRecognizer: UIGestureRecognizer) {
+        if gestureRecognizer.state != .began {
+            return
+        }
+        
         let touchPoint = gestureRecognizer.location(in: travelMap)
         let newCoordinates = travelMap.convert(touchPoint, toCoordinateFrom: travelMap)
         let pin = Pin(context: dataController.viewContext)
@@ -194,15 +198,16 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
 //        pin.longitude = pinned2D.longitude
         selectedPinCoordinates = pinned2D
 //        pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
+        pins = fetchedResultsController.fetchedObjects ?? []
         for pin in pins {
             if pin.latitude == pinned2D.latitude && pin.longitude == pinned2D.longitude {
                 selectedPin = pin
-//                mapView.deselectAnnotation(view.annotation, animated: true)
-//                break
+                performSegue(withIdentifier: "goToPinPhotos", sender: self)
+                mapView.deselectAnnotation(view.annotation, animated: true)
+                break
             }
         }
 //        AppClient.getPhotoData(coordinates: selectedPin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
-        performSegue(withIdentifier: "goToPinPhotos", sender: self)
     }
 
 }

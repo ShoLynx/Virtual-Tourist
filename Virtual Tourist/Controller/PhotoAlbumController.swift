@@ -64,12 +64,15 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        fetchedResultsController = nil
+//        TLMapController().dataController = dataController
         
         //Empty the arrays
         PhotoPool.photo = []
         photoArray = []
         batchDeleteRequest()
+        
+//        pin = nil
+//        TLMapController().selectedPin = nil
     }
     
     fileprivate func setCollectionFormat() {
@@ -127,7 +130,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
             try dataController.viewContext.execute(batchDeleteRequest)
-            dataController.viewContext.reset()
+//            dataController.viewContext.reset()
             photoCollection.reloadData()
         } catch {
             fatalError("The delete process could not be completed. \(error.localizedDescription)")
@@ -141,6 +144,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         PhotoPool.photo = []
         photoArray = []
         batchDeleteRequest()
+        setupFetchedResultsController()
         //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
         AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse)
     }
