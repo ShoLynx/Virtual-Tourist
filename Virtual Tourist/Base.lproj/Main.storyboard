@@ -79,25 +79,32 @@
                                 <rect key="frame" x="0.0" y="265" width="375" height="358"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="cc0-Un-VCW">
-                                    <size key="itemSize" width="117" height="119"/>
+                                    <size key="itemSize" width="201" height="202"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
+                                <label key="backgroundView" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No images available" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="zF1-df-8om">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="358"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoAlbumCollectionCell" id="yTS-ox-Gec" customClass="PhotoAlbumCollectionCell" customModule="Virtual_Tourist" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="117" height="119"/>
+                                        <rect key="frame" x="87" y="0.0" width="201" height="202"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                            <rect key="frame" x="0.0" y="0.0" width="117" height="119"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="201" height="202"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tOo-Wj-Vqd">
-                                                    <rect key="frame" x="0.0" y="0.0" width="117" height="119"/>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tOo-Wj-Vqd">
+                                                    <rect key="frame" x="0.0" y="0.0" width="201" height="202"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
                                                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Evm-I5-tBW">
-                                                    <rect key="frame" x="40" y="41" width="37" height="37"/>
+                                                    <rect key="frame" x="82" y="83" width="37" height="37"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </activityIndicatorView>
                                             </subviews>
@@ -164,6 +171,7 @@
                         <outlet property="backButton" destination="Hq6-Bt-T7W" id="yGe-3L-D6R"/>
                         <outlet property="flowLayout" destination="cc0-Un-VCW" id="cfY-Qh-9iK"/>
                         <outlet property="newCollectionButton" destination="Q5u-eD-L3M" id="Ng3-Gs-FGJ"/>
+                        <outlet property="noImagesLabel" destination="zF1-df-8om" id="RLp-VE-JaQ"/>
                         <outlet property="photoCollection" destination="5CB-5m-GVv" id="xpB-WK-uAn"/>
                         <outlet property="refreshButton" destination="LhJ-eX-B1W" id="dpd-Y8-FVd"/>
                         <outlet property="zoomedMap" destination="ujZ-hP-MAD" id="HIs-9G-DxW"/>

@@ -2,12 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "round_image_black_18dp.png",
+      "filename" : "imagePlaceholder.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "round_image_black_18dp-1.png",
       "scale" : "2x"
     },
     {

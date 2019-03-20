@@ -17,7 +17,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     @IBOutlet weak var zoomedMap: MKMapView!
     @IBOutlet weak var photoCollection: UICollectionView!
-//    @IBOutlet weak var noImagesLabel: UILabel!
+    @IBOutlet weak var noImagesLabel: UILabel!
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var backButton: UIBarButtonItem!
     @IBOutlet weak var refreshButton: UIBarButtonItem!
@@ -44,7 +44,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        noImagesLabel.isHidden = true
+        noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
         photoCollection.delegate = self
         photoCollection.dataSource = self
@@ -59,9 +59,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         
         
         setPin(coordinates: selectedPinCoordinates!)
-//        if photoArray.count == 0 {
-//            noImagesLabel.isHidden = false
-//        }
         photoCollection.reloadData()
     }
     
@@ -76,10 +73,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     fileprivate func setCollectionFormat() {
-        let space: CGFloat = 2.0
+        let space: CGFloat = 0.0
         let size = self.view.frame.size
-        let dWidth = (size.width - (2 * space)) / 4.0
-        let dHeight = (size.height - (2 * space)) / 4.0
+        let dWidth = (size.width - (space)) / 2.0
+        let dHeight = (size.height - (space)) / 5.0
         
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
@@ -113,21 +110,14 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
-//    func handleURLResponse (flickrPhoto: [String]?, error: Error?) {
-//        if flickrPhoto != nil {
-//            for flickrPhoto in fetchedResultsController.fetchedObjects ?? [] {
-//                AppClient.downloadPhoto(url: URL(string: flickrPhoto.imageURL!)!, completionHandler: handlePhotoDownloadResponse(image:error:))
-//            }
-//        } else {
-//            print(error!)
-//        }
-//    }
-    
     func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
         if photos != nil {
+            imagePool = photos!
             getImageURL()
+            newCollectionButton.isEnabled = true
         } else {
             print(error!)
+            noImagesLabel.isHidden = false
         }
     }
     
@@ -209,6 +199,13 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
 //  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         //Add code to remove related flickrPhoto from fetchedResultsController
+        let photoToDelete = fetchedResultsController.object(at: indexPath)
+        for photo in photoArray {
+            if photo.imageData == photoToDelete.imageData{
+                dataController.viewContext.delete(photoToDelete)
+                try? dataController.viewContext.save()
+            }
+        }
         collectionView.deleteItems(at: [indexPath])
         photoArray.remove(at: indexPath.row)
     }

@@ -143,7 +143,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         let destinationVC = segue.destination as! PhotoAlbumController
         destinationVC.selectedPinCoordinates = newPinned2D
         destinationVC.dataController = dataController
-        destinationVC.imagePool = PhotoPool.photo
         destinationVC.pin = selectedPin
     }
     
@@ -198,12 +197,12 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         for pin in pins {
             if pin.latitude == pinned2D.latitude && pin.longitude == pinned2D.longitude {
                 selectedPin = pin
-                performSegue(withIdentifier: "goToPinPhotos", sender: self)
-                mapView.deselectAnnotation(view.annotation, animated: true)
-                break
+//                mapView.deselectAnnotation(view.annotation, animated: true)
+//                break
             }
         }
 //        AppClient.getPhotoData(coordinates: selectedPin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
+        performSegue(withIdentifier: "goToPinPhotos", sender: self)
     }
 
 }
