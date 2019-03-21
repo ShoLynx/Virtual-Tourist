@@ -17,7 +17,8 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
 //    PinchGesture method obtained from https://stackoverflow.com/questions/36978190/ios-swift-cannot-get-pinch-to-work
 //    HoldGesture method obtained from https://stackoverflow.com/questions/30858360/adding-a-pin-annotation-to-a-map-view-on-a-long-press-in-swift
     
-    //var pins = [MKPointAnnotation]()
+    // MARK: Setup
+    
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<Pin>!
     var selectedPinCoordinates: CLLocationCoordinate2D?
@@ -47,12 +48,16 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         }
     }
     
+    // MARK: Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Setup dataController
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         dataController = appDelegate.dataController
         
+        //Assign delegates and set rules for default behavior
         navigationItem.rightBarButtonItem = editButtonItem
         travelMap.delegate = self
         activityIndicator.stopAnimating()
@@ -69,6 +74,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         
         setupFetchedResultsController()
         
+        //Load existing data onto the map
         for pin in fetchedResultsController.fetchedObjects ?? [] {
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
@@ -80,67 +86,67 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        //Re-enable FRC after PhotoAlbumController is dismissed
         setupFetchedResultsController()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        
+        //Disable FRC when PhotoAlbumController is visible
         fetchedResultsController = nil
     }
     
-    override func setEditing(_ editing: Bool, animated: Bool) {
-        super.setEditing(editing, animated: animated)
-        
-        // To be added:
-        // - Right Navigation Button becomes an Edit button
-        // - Left Navigation Button becomes 'Delete All' button
-        // - Tapping a pin in Edit mode produces Delete confirmation alert.  No dismisses the alert, Yes deletes the individual pin AND removes its info from the array (could probably add 'if editing' to mapView didSelectAt)
-        // - Tapping Delete all produces Delete All confirmation alert.  No dismisses the alert, Yes deletes all pins and empties the pin array
-    }
-
-//    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
-//        if photos != nil {
-//            travelMap.isUserInteractionEnabled = true
-//            activityIndicator.stopAnimating()
-//            performSegue(withIdentifier: "goToPinPhotos", sender: self)
-//        } else {
-//            travelMap.isUserInteractionEnabled = true
-//            activityIndicator.stopAnimating()
-//            showErrorAlert(message: error?.localizedDescription ?? "")
-//        }
+//  --DELETE FUNCTIONALITY BLOCK--
+    
+//    override func setEditing(_ editing: Bool, animated: Bool) {
+//        super.setEditing(editing, animated: animated)
+//
+//        // To be added:
+//        // - Right Navigation Button becomes an Edit button
+//        // - Left Navigation Button becomes 'Delete All' button
+//        // - Tapping a pin in Edit mode produces Delete confirmation alert.  No dismisses the alert, Yes deletes the individual pin AND removes its info from the array (could probably add 'if editing' to mapView didSelectAt)
+//        // - Tapping Delete all produces Delete All confirmation alert.  No dismisses the alert, Yes deletes all pins and empties the pin array
+//    }
+//
+//    func showDeleteAlert() {
+//        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove this pin?", preferredStyle: .alert)
+//        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
+//            //Enter cancel function here.
+//            alertVC.dismiss(animated: true, completion: nil)
+//        }))
+//        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
+//            //Enter deleteAnnotation functionality here
+//        }))
+//    }
+//
+//    func showDeleteAllAlert() {
+//        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove all of your pins?", preferredStyle: .alert)
+//        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
+//            //Enter cancel function here.
+//            alertVC.dismiss(animated: true, completion: nil)
+//        }))
+//        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
+//            //Enter deleteAll functionality here
+//        }))
+    //    }
+//
+//    @objc func deleteAnnotation() {
+//        //Enter deleteAnnotation function here
 //    }
     
-    func showErrorAlert(message: String) {
-        let alertVC = UIAlertController(title: "Problem Getting Data", message: message, preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        show(alertVC, sender: nil)
-    }
+    // MARK: Class-specific Functions
     
-    func showDeleteAlert() {
-        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove this pin?", preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-            //Enter cancel function here.
-            alertVC.dismiss(animated: true, completion: nil)
-        }))
-        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            //Enter deleteAnnotation functionality here
-        }))
-    }
-    
-    func showDeleteAllAlert() {
-        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove all of your pins?", preferredStyle: .alert)
-        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-            //Enter cancel function here.
-            alertVC.dismiss(animated: true, completion: nil)
-        }))
-        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-            //Enter deleteAll functionality here
-        }))
+    @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {
+        var pinchScale = pinchGesture.scale
+        pinchScale = round(pinchScale * 1000) / 1000.0
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        let newPinned2D = selectedPinCoordinates
         let destinationVC = segue.destination as! PhotoAlbumController
+        
+        //Send data to the PhotoAlbumController to ensure information is ready for use
         destinationVC.selectedPinCoordinates = selectedPinCoordinates
         destinationVC.dataController = dataController
         destinationVC.pin = selectedPin
@@ -151,14 +157,17 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
             return
         }
         
+        //Automatically gets coordinates from dropped pin
         let touchPoint = gestureRecognizer.location(in: travelMap)
         let newCoordinates = travelMap.convert(touchPoint, toCoordinateFrom: travelMap)
         let pin = Pin(context: dataController.viewContext)
         
+        //Create the pin object
         pin.latitude = newCoordinates.latitude
         pin.longitude = newCoordinates.longitude
         pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
         
+        //Setup the annotation, save pin to Core Data and add it to the array
         let annotation = MKPointAnnotation()
         annotation.coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         travelMap.addAnnotation(annotation)
@@ -166,14 +175,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         pins.append(pin)
     }
     
-    @objc func deleteAnnotation() {
-        //Enter deleteAnnotation function here
-    }
-    
-    @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {
-        var pinchScale = pinchGesture.scale
-        pinchScale = round(pinchScale * 1000) / 1000.0
-    }
+    // MARK: MapView Setup
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -190,14 +192,9 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        activityIndicator.startAnimating()
         self.selectedAnnotation = view.annotation as? MKPointAnnotation
-//        let pin = Pin(context: dataController.viewContext)
         let pinned2D = selectedAnnotation!.coordinate
-//        pin.latitude = pinned2D.latitude
-//        pin.longitude = pinned2D.longitude
         selectedPinCoordinates = pinned2D
-//        pin.coordinateString = "&lat=\(pin.latitude)&lon=\(pin.longitude)"
         pins = fetchedResultsController.fetchedObjects ?? []
         for pin in pins {
             if pin.latitude == pinned2D.latitude && pin.longitude == pinned2D.longitude {
@@ -207,7 +204,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
                 break
             }
         }
-//        AppClient.getPhotoData(coordinates: selectedPin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
     }
 
 }

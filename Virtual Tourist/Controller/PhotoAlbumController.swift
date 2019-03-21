@@ -13,8 +13,9 @@ import CoreData
 
 class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, NSFetchedResultsControllerDelegate {
     
-    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
+    // MARK: Setup
     
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var zoomedMap: MKMapView!
     @IBOutlet weak var photoCollection: UICollectionView!
     @IBOutlet weak var noImagesLabel: UILabel!
@@ -43,38 +44,58 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
+    // MARK: Life Cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //Setup default behavior and delegates
         noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
         photoCollection.delegate = self
         photoCollection.dataSource = self
         setCollectionFormat()
-
         setupFetchedResultsController()
+        
+        //Start getting photo data from Flickr
         AppClient.getPhotoData(coordinates: pin.coordinateString!, page: 1, completion: handlePhotoDataResponse(photos:error:))
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        
+        //Zoom in on the selected pin in the map view and ensure the album has the latest info
         setPin(coordinates: selectedPinCoordinates!)
         photoCollection.reloadData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-//        TLMapController().dataController = dataController
         
-        //Empty the arrays
+        //empty PhotoPool and related arrays
         PhotoPool.photo = []
         photoArray = []
         batchDeleteRequest()
-        
-//        pin = nil
-//        TLMapController().selectedPin = nil
+    }
+    
+    // MARK: Class-specific Functions
+    
+    @IBAction func newCollectionTapped(_ sender: Any) {
+        //set variable for a random Int between 1 and the max number of pages from download
+        let photoPage = Int.random(in: 1...(maxPages ?? 1))
+        //disable NewCollectionButton
+        self.newCollectionButton.isEnabled = false
+        //empty PhotoPool.photo and reset FRC
+        PhotoPool.photo = []
+        photoArray = []
+        batchDeleteRequest()
+        setupFetchedResultsController()
+        //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse)
+    }
+    
+    @IBAction func backToMap(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
     }
     
     fileprivate func setCollectionFormat() {
@@ -98,11 +119,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         zoomedMap.setRegion(region, animated: true)
     }
     
-    @IBAction func reloadCollectionView(_ sender: Any) {
-        photoCollection.reloadData()
-    }
-    
     func getImageURL () {
+        //Get the image URL from each photo object for Core Data and AppClient.downloadPhoto
         for photo in imagePool {
             let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
             flickrPhoto.imageURL = photo.url_n
@@ -117,11 +135,13 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     func handlePhotoDataResponse (photos: Photos?, error: Error?) {
         if photos != nil {
+            //Create local variables for PhotoPool.photo and ForMaxPages.pages
             imagePool = photos!.photo
             maxPages = ForMaxPages.pages
             getImageURL()
             newCollectionButton.isEnabled = true
         } else {
+            //The noImagesLabel should be enough to convey if there is a problem with downloads
             print(error!)
             noImagesLabel.isHidden = false
         }
@@ -133,52 +153,32 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
             try dataController.viewContext.execute(batchDeleteRequest)
-//            dataController.viewContext.reset()
             photoCollection.reloadData()
         } catch {
             fatalError("The delete process could not be completed. \(error.localizedDescription)")
         }
     }
     
-    @IBAction func newCollectionTapped(_ sender: Any) {
-        let photoPage = Int.random(in: 1...(maxPages ?? 1))
-        //disable NewCollectionButton
-        self.newCollectionButton.isEnabled = false
-        //empty PhotoPool.photo
-        PhotoPool.photo = []
-        photoArray = []
-        batchDeleteRequest()
-        setupFetchedResultsController()
-        //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse)
-    }
-    
-//    func showErrorAlert(message: String) {
-//        let alertVC = UIAlertController(title: "Problem Getting Data", message: message, preferredStyle: .alert)
-//        alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-//        show(alertVC, sender: nil)
-//    }
-    
     //This provides an alert for users to confirm deleting a photo from the collection.  Add to didSelectItem at
     func deleteAlert() {
         
     }
+
+    // MARK: Collection View Setup
     
-    @IBAction func backToMap(_ sender: Any) {
-        self.dismiss(animated: true, completion: nil)
-    }
-    
-    //   Need function for counting the number of available images in a download
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photoArray.count
     }
-    //    Need function that will fill the collection view with images
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCollectionCell", for: indexPath) as! PhotoAlbumCollectionCell
+        //Display placeholder image
         cell.pinImage.image = UIImage(named: "imagePlaceholder")
         let cellImage = photoArray[indexPath.row]
+        //Get imageURLs from Core Data
         let url = URL(string: cellImage.imageURL!)!
         DispatchQueue.main.async {
+            //Activate loading circle
             cell.activityIndicator.startAnimating()
             cell.activityIndicator.hidesWhenStopped = true
         }
@@ -187,8 +187,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             if error == nil {
                 if let data = data {
                     DispatchQueue.main.async {
+                        //Set imageData value for Core Data and save
                         cellImage.imageData = data
                         try? self.dataController.viewContext.save()
+                        //Set downloaded image to replace the cell's image
                         cell.pinImage.image = UIImage(data: data)
                         cell.setNeedsLayout()
                         cell.activityIndicator.stopAnimating()
@@ -204,9 +206,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         return cell
     }
     
-//  this code is needed to remove a cell from the collection and flow the remaining cells to the empty cells
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Add code to remove related flickrPhoto from fetchedResultsController
+        //Create a loop to search the FRC for imageData similar to the one selected, save and then delete selected from FRC.
         let photoToDelete = fetchedResultsController.object(at: indexPath)
         for photo in photoArray {
             if photo.imageData == photoToDelete.imageData{
@@ -214,7 +215,9 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
                 try? dataController.viewContext.save()
             }
         }
+        //Delete from local array
         photoArray.remove(at: indexPath.row)
+        //Delete from collection view
         collectionView.deleteItems(at: [indexPath])
     }
 

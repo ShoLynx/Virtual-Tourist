@@ -118,8 +118,6 @@
 				8413F9002219357A003BBE0D /* View */,
 				8413F90122193581003BBE0D /* Controller */,
 				8413F9022219367D003BBE0D /* Storyboards */,
-				8413F8D522193473003BBE0D /* Main.storyboard */,
-				8413F8DA22193474003BBE0D /* LaunchScreen.storyboard */,
 			);
 			path = "Virtual Tourist";
 			sourceTree = "<group>";
@@ -157,6 +155,8 @@
 		8413F9002219357A003BBE0D /* View */ = {
 			isa = PBXGroup;
 			children = (
+				8413F8D522193473003BBE0D /* Main.storyboard */,
+				8413F8DA22193474003BBE0D /* LaunchScreen.storyboard */,
 			);
 			path = View;
 			sourceTree = "<group>";

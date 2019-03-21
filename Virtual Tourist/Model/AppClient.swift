@@ -12,11 +12,11 @@ import MapKit
 
 class AppClient {
     
-    //MARK: APIs and contact URLs
+    // MARK: APIs and contact URLs
+    
     static var apiKey = "d26903be8565e2dde8b47edd610f600c"
     static var secret = "6d2d350b627a353e"
     
-    //create endpoints
     enum Endpoints {
         static let flickrURL = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)"
         
@@ -34,7 +34,7 @@ class AppClient {
     }
     
     
-    //Global Functions
+    // MARK: Global Functions
     
     class func getPhotoData(coordinates: String, page: Int, completion: @escaping(Photos?, Error?) -> Void) {
         let target = Endpoints.getData(coordinates, page).url
@@ -47,13 +47,13 @@ class AppClient {
             }
             do {
                 let decoder = JSONDecoder()
-//                decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let responseObject = try decoder.decode(FlickrResponse.self, from: data)
                 DispatchQueue.main.async {
                     completion(responseObject.photos, nil)
+                    //Sets the global variable for photo objects
                     PhotoPool.photo = responseObject.photos.photo
+                    //Sets the global variable for the maximum number of pages
                     ForMaxPages.pages = responseObject.photos.pages
-                    print(String(data: data, encoding: .utf8)!)
                 }
             } catch {
                 do {

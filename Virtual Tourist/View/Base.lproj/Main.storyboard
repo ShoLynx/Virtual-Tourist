@@ -135,11 +135,6 @@
                                                 <action selector="backToMap:" destination="4nl-73-2V7" id="3SN-S2-0BX"/>
                                             </connections>
                                         </barButtonItem>
-                                        <barButtonItem key="rightBarButtonItem" systemItem="refresh" id="LhJ-eX-B1W">
-                                            <connections>
-                                                <action selector="reloadCollectionView:" destination="4nl-73-2V7" id="vq9-zE-RQA"/>
-                                            </connections>
-                                        </barButtonItem>
                                     </navigationItem>
                                 </items>
                             </navigationBar>
@@ -173,7 +168,6 @@
                         <outlet property="newCollectionButton" destination="Q5u-eD-L3M" id="Ng3-Gs-FGJ"/>
                         <outlet property="noImagesLabel" destination="zF1-df-8om" id="RLp-VE-JaQ"/>
                         <outlet property="photoCollection" destination="5CB-5m-GVv" id="xpB-WK-uAn"/>
-                        <outlet property="refreshButton" destination="LhJ-eX-B1W" id="dpd-Y8-FVd"/>
                         <outlet property="zoomedMap" destination="ujZ-hP-MAD" id="HIs-9G-DxW"/>
                     </connections>
                 </viewController>
