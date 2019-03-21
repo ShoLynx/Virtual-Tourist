@@ -34,3 +34,7 @@ struct Photo: Codable {
 struct PhotoPool {
     static var photo = [Photo]()
 }
+
+struct ForMaxPages {
+    static var pages: Int?
+}

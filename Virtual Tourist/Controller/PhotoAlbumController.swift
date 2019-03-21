@@ -26,6 +26,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     var selectedPinCoordinates: CLLocationCoordinate2D?
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
+    var maxPages: Int?
     var imagePool: [Photo] = []
     var photoArray: [FlickrPhoto] = []
     
@@ -44,6 +45,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         noImagesLabel.isHidden = true
         newCollectionButton.isEnabled = false
         photoCollection.delegate = self
@@ -51,7 +53,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         setCollectionFormat()
 
         setupFetchedResultsController()
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse(photos:error:))
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: 1, completion: handlePhotoDataResponse(photos:error:))
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -113,9 +115,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
-    func handlePhotoDataResponse (photos: [Photo]?, error: Error?) {
+    func handlePhotoDataResponse (photos: Photos?, error: Error?) {
         if photos != nil {
-            imagePool = photos!
+            imagePool = photos!.photo
+            maxPages = ForMaxPages.pages
             getImageURL()
             newCollectionButton.isEnabled = true
         } else {
@@ -138,6 +141,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     @IBAction func newCollectionTapped(_ sender: Any) {
+        let photoPage = Int.random(in: 1...(maxPages ?? 1))
         //disable NewCollectionButton
         self.newCollectionButton.isEnabled = false
         //empty PhotoPool.photo
@@ -146,7 +150,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         batchDeleteRequest()
         setupFetchedResultsController()
         //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, completion: handlePhotoDataResponse)
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse)
     }
     
 //    func showErrorAlert(message: String) {

@@ -19,15 +19,12 @@ class AppClient {
     //create endpoints
     enum Endpoints {
         static let flickrURL = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)"
-        static let testURL =  "https://api.flickr.com/services/rest?nojsoncallback=1&format=json&per_page=30&page=1&api_key=e642c34c6ac8532ef77a7ec1c221babc"
         
-        case getData(String)
-        case test
+        case getData(String, Int)
         
         var stringValue: String {
             switch self {
-                case .getData(let coordinates): return Endpoints.flickrURL + "&accuracy=11\(coordinates)&extras=url_n&per_page=30&format=json&nojsoncallback=1"
-                case .test: return Endpoints.testURL + "&method=flickr.photos.search&safe_search=1&bbox=22.702575359394466,40.413855425758655,23.102575359394464,40.81385542575866&extras=url_n"
+                case .getData(let coordinates, let page): return Endpoints.flickrURL + "&sort=interestingness-desc&accuracy=11\(coordinates)&extras=url_n&per_page=30&page=\(page)&format=json&nojsoncallback=1"
             }
         }
         
@@ -39,8 +36,8 @@ class AppClient {
     
     //Global Functions
     
-    class func getPhotoData(coordinates: String, completion: @escaping([Photo]?, Error?) -> Void) {
-        let target = Endpoints.getData(coordinates).url
+    class func getPhotoData(coordinates: String, page: Int, completion: @escaping(Photos?, Error?) -> Void) {
+        let target = Endpoints.getData(coordinates, page).url
         let task = URLSession.shared.dataTask(with: target) { (data, response, error) in
             guard let data = data else {
                 DispatchQueue.main.async {
@@ -53,8 +50,9 @@ class AppClient {
 //                decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let responseObject = try decoder.decode(FlickrResponse.self, from: data)
                 DispatchQueue.main.async {
-                    completion(responseObject.photos.photo, nil)
+                    completion(responseObject.photos, nil)
                     PhotoPool.photo = responseObject.photos.photo
+                    ForMaxPages.pages = responseObject.photos.pages
                     print(String(data: data, encoding: .utf8)!)
                 }
             } catch {
