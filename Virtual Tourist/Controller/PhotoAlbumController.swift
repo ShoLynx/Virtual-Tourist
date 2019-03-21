@@ -78,7 +78,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     fileprivate func setCollectionFormat() {
-        let space: CGFloat = 0.0
+        let space: CGFloat = 2.0
         let size = self.view.frame.size
         let dWidth = (size.width - (space)) / 2.0
         let dHeight = (size.height - (space)) / 5.0
@@ -214,8 +214,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
                 try? dataController.viewContext.save()
             }
         }
-        collectionView.deleteItems(at: [indexPath])
         photoArray.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
     }
 
 }
