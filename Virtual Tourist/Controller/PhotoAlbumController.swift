@@ -69,15 +69,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         photoCollection.reloadData()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        //empty PhotoPool and related arrays
-        PhotoPool.photo = []
-        photoArray = []
-        batchDeleteRequest()
-    }
-    
     // MARK: Class-specific Functions
     
     @IBAction func newCollectionTapped(_ sender: Any) {
@@ -88,9 +79,9 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         //empty PhotoPool.photo and reset FRC
         PhotoPool.photo = []
         photoArray = []
-        batchDeleteRequest()
+        emptyPhotoArray()
         setupFetchedResultsController()
-        //Run getPhotoData with completion handler handlePhotoDataResponse(Run downloadPhoto)
+        //Run getPhotoData with completion handler handlePhotoDataResponse
         AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse)
     }
     
@@ -141,21 +132,16 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             getImageURL()
             newCollectionButton.isEnabled = true
         } else {
-            //The noImagesLabel should be enough to convey if there is a problem with downloads
+            //The noImagesLabel should be enough to convey when there is a problem with downloads
             print(error!)
             noImagesLabel.isHidden = false
         }
     }
     
-    fileprivate func batchDeleteRequest() {
-        //empty fetchedResultsController and clear the photoCollection
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "FlickrPhoto")
-        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        do {
-            try dataController.viewContext.execute(batchDeleteRequest)
-            photoCollection.reloadData()
-        } catch {
-            fatalError("The delete process could not be completed. \(error.localizedDescription)")
+    func emptyPhotoArray() {
+        for photo in photoArray {
+            dataController.viewContext.delete(photo)
+            try? self.dataController.viewContext.save()
         }
     }
     
