@@ -28,6 +28,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
     var maxPages: Int?
+    var imagesAvailable: Bool!
     var imagePool: [Photo] = []
     var photoArray: [FlickrPhoto] = []
     
@@ -58,7 +59,12 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         setupFetchedResultsController()
         
         //Start getting photo data from Flickr
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: 1, completion: handlePhotoDataResponse(photos:error:))
+        if photoArray.isEmpty {
+            imagesAvailable = false
+            AppClient.getPhotoData(coordinates: pin.coordinateString!, page: 1, completion: handlePhotoDataResponse(photos:pages:error:))
+        } else {
+            imagesAvailable = true
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,7 +88,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         emptyPhotoArray()
         setupFetchedResultsController()
         //Run getPhotoData with completion handler handlePhotoDataResponse
-        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse)
+        AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse(photos:pages:error:))
     }
     
     @IBAction func backToMap(_ sender: Any) {
@@ -124,11 +130,11 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         }
     }
     
-    func handlePhotoDataResponse (photos: Photos?, error: Error?) {
+    func handlePhotoDataResponse (photos: Photos?, pages: Int?, error: Error?) {
         if photos != nil {
             //Create local variables for PhotoPool.photo and ForMaxPages.pages
             imagePool = photos!.photo
-            maxPages = ForMaxPages.pages
+            maxPages = min(pages!, 4000/30)
             getImageURL()
             newCollectionButton.isEnabled = true
         } else {
@@ -158,37 +164,43 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCollectionCell", for: indexPath) as! PhotoAlbumCollectionCell
-        //Display placeholder image
-        cell.pinImage.image = UIImage(named: "imagePlaceholder")
         let cellImage = photoArray[indexPath.row]
-        //Get imageURLs from Core Data
-        let url = URL(string: cellImage.imageURL!)!
-        DispatchQueue.main.async {
-            //Activate loading circle
-            cell.activityIndicator.startAnimating()
-            cell.activityIndicator.hidesWhenStopped = true
-        }
         
-        AppClient.downloadPhoto(url: url) { (data, error) in
-            if error == nil {
-                if let data = data {
-                    DispatchQueue.main.async {
-                        //Set imageData value for Core Data and save
-                        cellImage.imageData = data
-                        try? self.dataController.viewContext.save()
-                        //Set downloaded image to replace the cell's image
-                        cell.pinImage.image = UIImage(data: data)
-                        cell.setNeedsLayout()
-                        cell.activityIndicator.stopAnimating()
+        //Display placeholder image if there is no image data available
+        if imagesAvailable {
+            cell.pinImage.image = UIImage(data: cellImage.imageData!)
+        } else {
+            cell.pinImage.image = UIImage(named: "imagePlaceholder")
+            
+            //Get imageURLs from Core Data
+            let url = URL(string: cellImage.imageURL!)!
+            DispatchQueue.main.async {
+                //Activate loading circle
+                cell.activityIndicator.startAnimating()
+                cell.activityIndicator.hidesWhenStopped = true
+            }
+            
+            AppClient.downloadPhoto(url: url) { (data, error) in
+                if error == nil {
+                    if let data = data {
+                        DispatchQueue.main.async {
+                            //Set imageData value for Core Data and save
+                            cellImage.imageData = data
+                            try? self.dataController.viewContext.save()
+                            //Set downloaded image to replace the cell's image
+                            cell.pinImage.image = UIImage(data: data)
+                            cell.setNeedsLayout()
+                            cell.activityIndicator.stopAnimating()
+                        }
                     }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    print(error!)
+                } else {
+                    DispatchQueue.main.async {
+                        print(error!)
+                    }
                 }
             }
         }
-
+        
         return cell
     }
     

@@ -36,12 +36,12 @@ class AppClient {
     
     // MARK: Global Functions
     
-    class func getPhotoData(coordinates: String, page: Int, completion: @escaping(Photos?, Error?) -> Void) {
+    class func getPhotoData(coordinates: String, page: Int, completion: @escaping(Photos?, Int?, Error?) -> Void) {
         let target = Endpoints.getData(coordinates, page).url
         let task = URLSession.shared.dataTask(with: target) { (data, response, error) in
             guard let data = data else {
                 DispatchQueue.main.async {
-                    completion(nil, error)
+                    completion(nil, nil, error)
                 }
                 return
             }
@@ -49,7 +49,7 @@ class AppClient {
                 let decoder = JSONDecoder()
                 let responseObject = try decoder.decode(FlickrResponse.self, from: data)
                 DispatchQueue.main.async {
-                    completion(responseObject.photos, nil)
+                    completion(responseObject.photos, responseObject.photos.pages, nil)
                     //Sets the global variable for photo objects
                     PhotoPool.photo = responseObject.photos.photo
                     //Sets the global variable for the maximum number of pages
@@ -60,12 +60,12 @@ class AppClient {
                     let decoder = JSONDecoder()
                     let errorResponse = try decoder.decode(EResponse.self, from: data)
                     DispatchQueue.main.async {
-                        completion(nil, errorResponse)
+                        completion(nil, nil, errorResponse)
                         print(String(data: data, encoding: .utf8)!)
                     }
                 } catch {
                     DispatchQueue.main.async {
-                        completion(nil, error)
+                        completion(nil, nil, error)
                         print(error)
                     }
                 }
