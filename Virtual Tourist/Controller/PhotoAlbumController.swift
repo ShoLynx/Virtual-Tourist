@@ -174,32 +174,37 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             cell.pinImage.image = UIImage(named: "imagePlaceholder")
             
             //Get imageURLs from Core Data
-            let url = URL(string: cellImage.imageURL!)!
-            DispatchQueue.main.async {
-                //Activate loading circle
-                cell.activityIndicator.startAnimating()
-                cell.activityIndicator.hidesWhenStopped = true
-            }
-            
-            AppClient.downloadPhoto(url: url) { (data, error) in
-                if error == nil {
-                    if let data = data {
+            if cellImage.imageURL != nil {
+                let url = URL(string: cellImage.imageURL!)!
+                DispatchQueue.main.async {
+                    //Activate loading circle
+                    cell.activityIndicator.startAnimating()
+                    cell.activityIndicator.hidesWhenStopped = true
+                }
+                
+                AppClient.downloadPhoto(url: url) { (data, error) in
+                    if error == nil {
+                        if let data = data {
+                            DispatchQueue.main.async {
+                                //Set imageData value for Core Data and save
+                                cellImage.imageData = data
+                                cellImage.pin = self.pin
+                                try? self.dataController.viewContext.save()
+                                //Set downloaded image to replace the cell's image
+                                cell.pinImage.image = UIImage(data: data)
+                                cell.setNeedsLayout()
+                                cell.activityIndicator.stopAnimating()
+                            }
+                        }
+                    } else {
                         DispatchQueue.main.async {
-                            //Set imageData value for Core Data and save
-                            cellImage.imageData = data
-                            cellImage.pin = self.pin
-                            try? self.dataController.viewContext.save()
-                            //Set downloaded image to replace the cell's image
-                            cell.pinImage.image = UIImage(data: data)
-                            cell.setNeedsLayout()
-                            cell.activityIndicator.stopAnimating()
+                            print(error!)
                         }
                     }
-                } else {
-                    DispatchQueue.main.async {
-                        print(error!)
-                    }
                 }
+            } else {
+                cell.pinImage.image = UIImage(named: "imagePlaceholder")
+                cell.activityIndicator.stopAnimating()
             }
         }
         
@@ -207,14 +212,11 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //Create a loop to search the FRC for imageData similar to the one selected, save and then delete selected from FRC.
-        let photoToDelete = fetchedResultsController.object(at: indexPath)
-        for photo in photoArray {
-            if photo.imageData == photoToDelete.imageData{
-                dataController.viewContext.delete(photoToDelete)
-                try? dataController.viewContext.save()
-            }
-        }
+        //Delete the selected photo and save updates to Core Data
+        let photoToDelete = photoArray[indexPath.row]
+        dataController.viewContext.delete(photoToDelete)
+        try? dataController.viewContext.save()
+        
         //Delete from local array
         photoArray.remove(at: indexPath.row)
         //Delete from collection view

@@ -197,6 +197,7 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         self.selectedAnnotation = view.annotation as? MKPointAnnotation
         let pinned2D = selectedAnnotation!.coordinate
         selectedPinCoordinates = pinned2D
+        setupFetchedResultsController()
         pins = fetchedResultsController.fetchedObjects ?? []
         for pin in pins {
             if pin.latitude == pinned2D.latitude && pin.longitude == pinned2D.longitude {
