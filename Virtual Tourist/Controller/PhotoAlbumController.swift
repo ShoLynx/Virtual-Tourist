@@ -28,15 +28,15 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<FlickrPhoto>!
     var maxPages: Int?
-    var imagesAvailable: Bool!
     var imagePool: [Photo] = []
     var photoArray: [FlickrPhoto] = []
     
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "pin = %@", pin)
         let sortDescriptor = NSSortDescriptor(key: "imageURL", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pin")
         fetchedResultsController.delegate = self
         do {
             try fetchedResultsController.performFetch()
@@ -58,12 +58,11 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         setCollectionFormat()
         setupFetchedResultsController()
         
+        photoArray = fetchedResultsController.fetchedObjects ?? []
+        
         //Start getting photo data from Flickr
         if photoArray.isEmpty {
-            imagesAvailable = false
             AppClient.getPhotoData(coordinates: pin.coordinateString!, page: 1, completion: handlePhotoDataResponse(photos:pages:error:))
-        } else {
-            imagesAvailable = true
         }
     }
     
@@ -121,6 +120,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         for photo in imagePool {
             let flickrPhoto = FlickrPhoto(context: dataController.viewContext)
             flickrPhoto.imageURL = photo.url_n
+            flickrPhoto.pin = pin
             photoArray.append(flickrPhoto)
         }
         
@@ -167,8 +167,9 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         let cellImage = photoArray[indexPath.row]
         
         //Display placeholder image if there is no image data available
-        if imagesAvailable {
+        if cellImage.imageData != nil {
             cell.pinImage.image = UIImage(data: cellImage.imageData!)
+            newCollectionButton.isEnabled = true
         } else {
             cell.pinImage.image = UIImage(named: "imagePlaceholder")
             
@@ -186,6 +187,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
                         DispatchQueue.main.async {
                             //Set imageData value for Core Data and save
                             cellImage.imageData = data
+                            cellImage.pin = self.pin
                             try? self.dataController.viewContext.save()
                             //Set downloaded image to replace the cell's image
                             cell.pinImage.image = UIImage(data: data)

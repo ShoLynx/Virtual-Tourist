@@ -173,6 +173,8 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         travelMap.addAnnotation(annotation)
         try? dataController.viewContext.save()
         pins.append(pin)
+        
+        travelMap.reloadInputViews()
     }
     
     // MARK: MapView Setup
