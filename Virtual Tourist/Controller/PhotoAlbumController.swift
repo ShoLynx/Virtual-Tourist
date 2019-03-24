@@ -77,15 +77,16 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     // MARK: Class-specific Functions
     
     @IBAction func newCollectionTapped(_ sender: Any) {
+        //empty PhotoPool.photo and reset FRC
+        emptyPhotoArray()
+        PhotoPool.photo = []
+        photoArray = []
+        setupFetchedResultsController()
+        photoCollection.reloadInputViews()
         //set variable for a random Int between 1 and the max number of pages from download
         let photoPage = Int.random(in: 1...(maxPages ?? 1))
         //disable NewCollectionButton
         self.newCollectionButton.isEnabled = false
-        //empty PhotoPool.photo and reset FRC
-        PhotoPool.photo = []
-        photoArray = []
-        emptyPhotoArray()
-        setupFetchedResultsController()
         //Run getPhotoData with completion handler handlePhotoDataResponse
         AppClient.getPhotoData(coordinates: pin.coordinateString!, page: photoPage, completion: handlePhotoDataResponse(photos:pages:error:))
     }
@@ -149,11 +150,6 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
             dataController.viewContext.delete(photo)
             try? self.dataController.viewContext.save()
         }
-    }
-    
-    //This provides an alert for users to confirm deleting a photo from the collection.  Add to didSelectItem at
-    func deleteAlert() {
-        
     }
 
     // MARK: Collection View Setup

@@ -98,44 +98,6 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
         fetchedResultsController = nil
     }
     
-//  --DELETE FUNCTIONALITY BLOCK--
-    
-//    override func setEditing(_ editing: Bool, animated: Bool) {
-//        super.setEditing(editing, animated: animated)
-//
-//        // To be added:
-//        // - Right Navigation Button becomes an Edit button
-//        // - Left Navigation Button becomes 'Delete All' button
-//        // - Tapping a pin in Edit mode produces Delete confirmation alert.  No dismisses the alert, Yes deletes the individual pin AND removes its info from the array (could probably add 'if editing' to mapView didSelectAt)
-//        // - Tapping Delete all produces Delete All confirmation alert.  No dismisses the alert, Yes deletes all pins and empties the pin array
-//    }
-//
-//    func showDeleteAlert() {
-//        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove this pin?", preferredStyle: .alert)
-//        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-//            //Enter cancel function here.
-//            alertVC.dismiss(animated: true, completion: nil)
-//        }))
-//        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-//            //Enter deleteAnnotation functionality here
-//        }))
-//    }
-//
-//    func showDeleteAllAlert() {
-//        let alertVC = UIAlertController(title: "Are You Sure?", message: "Do you want to remove all of your pins?", preferredStyle: .alert)
-//        alertVC.addAction(UIAlertAction(title: "No", style: .cancel, handler: { (action: UIAlertAction!) in
-//            //Enter cancel function here.
-//            alertVC.dismiss(animated: true, completion: nil)
-//        }))
-//        alertVC.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (action: UIAlertAction!) in
-//            //Enter deleteAll functionality here
-//        }))
-    //    }
-//
-//    @objc func deleteAnnotation() {
-//        //Enter deleteAnnotation function here
-//    }
-    
     // MARK: Class-specific Functions
     
     @IBAction func pinchAction(pinch: UIPinchGestureRecognizer) {

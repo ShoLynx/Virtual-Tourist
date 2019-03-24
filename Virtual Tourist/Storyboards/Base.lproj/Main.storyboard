@@ -31,9 +31,7 @@
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p9a-1S-LtX">
                                 <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                                 <items>
-                                    <navigationItem title="Virtual Tourist" id="m5i-F6-1n9">
-                                        <barButtonItem key="rightBarButtonItem" title="Delete" image="outline_edit_location_black_18dp" id="lI2-b4-QvL"/>
-                                    </navigationItem>
+                                    <navigationItem title="Virtual Tourist" id="m5i-F6-1n9"/>
                                 </items>
                             </navigationBar>
                         </subviews>
@@ -185,7 +183,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="outline_edit_location_black_18dp" width="36" height="36"/>
         <image name="outline_map_black_18dp" width="36" height="36"/>
     </resources>
 </document>
