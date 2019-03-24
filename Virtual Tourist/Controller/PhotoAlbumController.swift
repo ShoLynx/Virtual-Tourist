@@ -68,7 +68,7 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        setupFetchedResultsController()
         //Zoom in on the selected pin in the map view and ensure the album has the latest info
         setPin(coordinates: selectedPinCoordinates!)
         photoCollection.reloadData()
@@ -95,10 +95,10 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     }
     
     fileprivate func setCollectionFormat() {
-        let space: CGFloat = 2.0
+        let space: CGFloat = 4.0
         let size = self.view.frame.size
         let dWidth = (size.width - (space)) / 2.0
-        let dHeight = (size.height - (space)) / 5.0
+        let dHeight = (size.height - (space)) / 4.0
         
         flowLayout.minimumInteritemSpacing = space
         flowLayout.minimumLineSpacing = space
@@ -169,6 +169,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
         //Display placeholder image if there is no image data available
         if cellImage.imageData != nil {
             cell.pinImage.image = UIImage(data: cellImage.imageData!)
+            cell.activityIndicator.stopAnimating()
+            cell.activityIndicator.hidesWhenStopped = true
             newCollectionButton.isEnabled = true
         } else {
             cell.pinImage.image = UIImage(named: "imagePlaceholder")

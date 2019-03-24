@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina6_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,21 +15,21 @@
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="TLMapController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="H8w-14-uP8" userLabel="Travel Map">
-                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                             </mapView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="zWq-BN-7bR">
-                                <rect key="frame" x="162.5" y="308.5" width="50" height="50"/>
+                                <rect key="frame" x="182" y="423" width="50" height="50"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="50" id="TpJ-uI-gi4"/>
                                     <constraint firstAttribute="height" constant="50" id="rhj-CN-Ucz"/>
                                 </constraints>
                             </activityIndicatorView>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p9a-1S-LtX">
-                                <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                                 <items>
                                     <navigationItem title="Virtual Tourist" id="m5i-F6-1n9">
                                         <barButtonItem key="rightBarButtonItem" title="Delete" image="outline_edit_location_black_18dp" id="lI2-b4-QvL"/>
@@ -66,26 +66,26 @@
             <objects>
                 <viewController id="4nl-73-2V7" customClass="PhotoAlbumController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="zMh-VK-xNa">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ujZ-hP-MAD">
-                                <rect key="frame" x="0.0" y="64" width="375" height="200"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="150"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="Eh2-Io-FOG"/>
+                                    <constraint firstAttribute="height" constant="150" id="Eh2-Io-FOG"/>
                                 </constraints>
                             </mapView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="5CB-5m-GVv">
-                                <rect key="frame" x="0.0" y="265" width="375" height="358"/>
+                                <rect key="frame" x="0.0" y="238" width="414" height="580"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="cc0-Un-VCW">
-                                    <size key="itemSize" width="201" height="202"/>
+                                    <size key="itemSize" width="314" height="309"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <label key="backgroundView" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="No images available" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="zF1-df-8om">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="358"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="580"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <color key="textColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
@@ -93,22 +93,30 @@
                                 </label>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoAlbumCollectionCell" id="yTS-ox-Gec" customClass="PhotoAlbumCollectionCell" customModule="Virtual_Tourist" customModuleProvider="target">
-                                        <rect key="frame" x="87" y="0.0" width="201" height="202"/>
+                                        <rect key="frame" x="50" y="0.0" width="314" height="309"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                            <rect key="frame" x="0.0" y="0.0" width="201" height="202"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="314" height="309"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tOo-Wj-Vqd">
-                                                    <rect key="frame" x="0.0" y="0.0" width="201" height="202"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tOo-Wj-Vqd">
+                                                    <rect key="frame" x="0.0" y="0.0" width="314" height="309"/>
                                                 </imageView>
-                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Evm-I5-tBW">
-                                                    <rect key="frame" x="82" y="83" width="37" height="37"/>
-                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Evm-I5-tBW">
+                                                    <rect key="frame" x="138.66666666666666" y="136" width="37" height="37"/>
                                                 </activityIndicatorView>
                                             </subviews>
                                         </view>
+                                        <constraints>
+                                            <constraint firstItem="tOo-Wj-Vqd" firstAttribute="centerX" secondItem="yTS-ox-Gec" secondAttribute="centerX" id="6Jz-1z-Vyd"/>
+                                            <constraint firstItem="Evm-I5-tBW" firstAttribute="centerX" secondItem="yTS-ox-Gec" secondAttribute="centerX" id="Dkq-dh-QpN"/>
+                                            <constraint firstItem="tOo-Wj-Vqd" firstAttribute="centerY" secondItem="yTS-ox-Gec" secondAttribute="centerY" id="JAj-wB-YIz"/>
+                                            <constraint firstAttribute="bottom" secondItem="tOo-Wj-Vqd" secondAttribute="bottom" id="V14-pa-ldf"/>
+                                            <constraint firstItem="tOo-Wj-Vqd" firstAttribute="top" secondItem="yTS-ox-Gec" secondAttribute="top" id="jWg-xA-Tyx"/>
+                                            <constraint firstItem="Evm-I5-tBW" firstAttribute="centerY" secondItem="yTS-ox-Gec" secondAttribute="centerY" id="kCW-4F-eEM"/>
+                                            <constraint firstItem="tOo-Wj-Vqd" firstAttribute="leading" secondItem="yTS-ox-Gec" secondAttribute="leading" id="mGj-lR-Qns"/>
+                                            <constraint firstAttribute="trailing" secondItem="tOo-Wj-Vqd" secondAttribute="trailing" id="tOD-h5-ff8"/>
+                                        </constraints>
                                         <connections>
                                             <outlet property="activityIndicator" destination="Evm-I5-tBW" id="UlX-ql-iF4"/>
                                             <outlet property="pinImage" destination="tOo-Wj-Vqd" id="wo4-r4-gpM"/>
@@ -117,9 +125,9 @@
                                 </cells>
                             </collectionView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XQF-8v-9LN">
-                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="818" width="414" height="44"/>
                                 <items>
-                                    <barButtonItem title="New Collection" width="481.5" id="Q5u-eD-L3M">
+                                    <barButtonItem title="New Collection" width="1097.5" id="Q5u-eD-L3M">
                                         <connections>
                                             <action selector="newCollectionTapped:" destination="4nl-73-2V7" id="9V5-We-T9d"/>
                                         </connections>
@@ -127,7 +135,7 @@
                                 </items>
                             </toolbar>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="s1f-M2-ry7">
-                                <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                                 <items>
                                     <navigationItem title="Virtual Tourist" id="1QR-WG-KQN">
                                         <barButtonItem key="leftBarButtonItem" title="Back to Map" image="outline_map_black_18dp" id="Hq6-Bt-T7W">
@@ -153,7 +161,7 @@
                             <constraint firstItem="ujZ-hP-MAD" firstAttribute="trailing" secondItem="7bQ-q9-4OS" secondAttribute="trailing" id="SfT-kj-D4g"/>
                             <constraint firstItem="s1f-M2-ry7" firstAttribute="trailing" secondItem="7bQ-q9-4OS" secondAttribute="trailing" id="TeN-nw-Imm"/>
                             <constraint firstItem="s1f-M2-ry7" firstAttribute="leading" secondItem="7bQ-q9-4OS" secondAttribute="leading" id="ZZ3-ca-H0d"/>
-                            <constraint firstItem="5CB-5m-GVv" firstAttribute="top" secondItem="ujZ-hP-MAD" secondAttribute="bottom" constant="1" id="Zfv-8M-5rK"/>
+                            <constraint firstItem="5CB-5m-GVv" firstAttribute="top" secondItem="ujZ-hP-MAD" secondAttribute="bottom" id="Zfv-8M-5rK"/>
                             <constraint firstItem="XQF-8v-9LN" firstAttribute="leading" secondItem="7bQ-q9-4OS" secondAttribute="leading" id="d8k-Gl-H4w"/>
                             <constraint firstItem="ujZ-hP-MAD" firstAttribute="top" secondItem="s1f-M2-ry7" secondAttribute="bottom" id="ecg-2K-gam"/>
                             <constraint firstItem="XQF-8v-9LN" firstAttribute="top" secondItem="5CB-5m-GVv" secondAttribute="bottom" id="hat-Vd-GPj"/>
@@ -173,7 +181,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oLt-ph-jbi" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="868" y="223.53823088455775"/>
+            <point key="canvasLocation" x="866.25" y="222.88732394366198"/>
         </scene>
     </scenes>
     <resources>
