@@ -33,7 +33,8 @@ class PhotoAlbumController: UIViewController, UICollectionViewDelegate, UICollec
     
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<FlickrPhoto> = FlickrPhoto.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "pin = %@", pin)
+        let predicate = NSPredicate(format: "pin == %@", self.pin)
+        fetchRequest.predicate = predicate
         let sortDescriptor = NSSortDescriptor(key: "imageURL", ascending: false)
         fetchRequest.sortDescriptors = [sortDescriptor]
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "pin")
