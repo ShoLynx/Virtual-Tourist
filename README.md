@@ -7,7 +7,7 @@ Clone the GitHub repositiory and use Xcode to install.
 
 
 ## How to Use
-When you first open **Virtual Tourist**, you are presented with a full screen **map**.  Place pins at locations of interest.  Then, select that pin to view a auto-generated album of photos from the pin's city or region.
+When you first open **Virtual Tourist**, you are presented with a full screen **map**.  Place pins at locations of interest.  Then, select that pin to view a auto-generated album of photos from the pin's city or region.  An internet connection is required to download album photos.
 
 ### Map Controls
 - Pinch gesture: Set the zoom level of the map
