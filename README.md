@@ -21,7 +21,7 @@ Once you select a pin, you'll enter that pin's **album**.  The album will contai
 - Swipe collection view: Scrolls through the available photos in the album
 - New Collection button: Removes all available photos and downloads a new set of photos
 
-The state of the map pins and albums should persist.  Allowing you to revisit them even after closing the app.
+The state of the map pins and albums should persist, allowing you to revisit them even after closing the app.
 
 ## Planned updates
 - A known issue about some albums showing placeholder photos or photos from other albums after New Collection is used is planned to be fixed
