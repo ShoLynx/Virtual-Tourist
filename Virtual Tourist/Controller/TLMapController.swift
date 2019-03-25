@@ -19,6 +19,9 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     
     // MARK: Setup
     
+    @IBOutlet weak var travelMap: MKMapView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     var dataController: DataController!
     var fetchedResultsController: NSFetchedResultsController<Pin>!
     var selectedPinCoordinates: CLLocationCoordinate2D?
@@ -27,12 +30,8 @@ class TLMapController: UIViewController, MKMapViewDelegate, UIGestureRecognizerD
     var selectedPin: Pin!
     var imagePool: [Photo] = []
     var photoArray: [FlickrPhoto] = []
-
     var holdGesture = UILongPressGestureRecognizer()
     var pinchGesture = UIPinchGestureRecognizer()
-    
-    @IBOutlet weak var travelMap: MKMapView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     func setupFetchedResultsController() {
         let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
